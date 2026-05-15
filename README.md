@@ -162,7 +162,15 @@ TopMost\bin\Release\net10.0-windows\win-x64\publish\TopMost2.exe
 
 ### Install at Startup
 
-TopMost2 can still be configured from the options window to start with Windows. For a portable install, copy the published `TopMost2.exe` somewhere stable and create a shortcut to it in `shell:startup`.
+Download `TopMost2.exe` and `install.ps1` from the latest release, place them in the same folder, and run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+The installer copies `TopMost2.exe` to `%LOCALAPPDATA%\Programs\TopMost2`, creates a shortcut in `shell:startup`, and starts the app. You can also run the script by itself; it will download `TopMost2.exe` from the latest release.
+
+TopMost2 can still be configured from the options window to start with Windows. For a fully manual portable install, copy the published `TopMost2.exe` somewhere stable and create a shortcut to it in `shell:startup`.
 
 
 ### Security Notes
