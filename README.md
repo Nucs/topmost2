@@ -1,10 +1,11 @@
 <p align="center">
-	<a href="https://github.com/jerrylum/topmost2"><img src="https://i.imgur.com/r7PW6a2.png" alt="IntroIcon" width="100"></a>
+	<a href="https://github.com/Nucs/topmost2"><img src="https://i.imgur.com/r7PW6a2.png" alt="IntroIcon" width="100"></a>
 </p>
 <h3 align="center">TopMost2</h3>
 <p align="center">This tool allows you to make any windows always on top.</p>
+<p align="center">A modernized .NET 10 fork of <a href="https://github.com/Jerrylum/topmost2">Jerrylum/topmost2</a>.</p>
 
-<h4 align="center"><a href="https://github.com/jerrylum/topmost2/releases">Download Now</a></h4>
+<h4 align="center"><a href="#build-from-source">Build from Source</a> · <a href="#fork-changes">Fork Changes</a> · <a href="#license">License</a></h4>
 
 ---
 
@@ -56,6 +57,7 @@ Click on a menu item from the `Window List` to pin or unpin any windows.
 - Freely customizable hotkey
 - Global hotkey
 - Command-line support
+- PowerToys-style on/off sound cues
 - High compatibility with other programs  
 - Negligible system resources usage
 
@@ -88,6 +90,9 @@ Many windows applications don’t offer an option to make itself topmost. When y
   ![Hot Key Demo](https://i.imgur.com/jGFi1tC.gif)  
   If TopMost2 starts with normal permission, it may not be able to read the input of the keyboard in the elevated window.
 
+- **Sound Cues**
+  TopMost2 plays the same Windows media cues used by Microsoft PowerToys Always On Top: `Speech On.wav` when a window is pinned and `Speech Sleep.wav` when it is unpinned. If those files are unavailable, it falls back to built-in system sounds.
+
 - **Exit**  
   This function will set all windows to normal state and shut down the program.
 
@@ -117,6 +122,57 @@ For example:
 .\topmost2 -S 0x311A0 -S 0x190D4E
 .\topmost2 -R 0x311A0
 ```
+
+
+---
+
+### Fork Changes
+
+This fork keeps the original tray-based workflow and command-line interface, while updating the project for current Windows and .NET tooling.
+
+- Migrated the project from .NET Framework 4.7.2 to SDK-style `net10.0-windows`.
+- Added self-contained single-file `win-x64` publishing support.
+- Fixed executable path detection for .NET single-file builds.
+- Updated the global keyboard hook interop for modern 64-bit .NET.
+- Made the options window reliably come to the front from the tray menu.
+- Added PowerToys-style sound cues for pinning and unpinning windows.
+
+
+### Build from Source
+
+Install the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), then publish a portable single-file build:
+
+```powershell
+dotnet publish TopMost\TopMost2.csproj `
+  -c Release `
+  -r win-x64 `
+  --self-contained true `
+  -p:PublishSingleFile=true `
+  -p:EnableCompressionInSingleFile=true `
+  -p:DebugType=none `
+  -p:DebugSymbols=false
+```
+
+The executable will be generated under:
+
+```powershell
+TopMost\bin\Release\net10.0-windows\win-x64\publish\TopMost2.exe
+```
+
+
+### Install at Startup
+
+TopMost2 can still be configured from the options window to start with Windows. For a portable install, copy the published `TopMost2.exe` somewhere stable and create a shortcut to it in `shell:startup`.
+
+
+### Security Notes
+
+TopMost2 does not use network access or third-party runtime packages. The app uses expected Windows APIs for this kind of utility: a low-level keyboard hook for the hotkey, `SetWindowPos` for top-most state, HKCU registry values for settings, and optional UAC elevation when changing elevated windows.
+
+
+### Contributing
+
+Issues and pull requests are welcome. Please keep changes focused, describe the Windows version and .NET SDK used for testing, and include screenshots or short reproduction steps for tray, hotkey, and window-focus behavior.
 
 
 
@@ -155,11 +211,16 @@ There are similar software like [DeskPins](https://efotinis.neocities.org/deskpi
 
 ### Download
 
-Please go to [the release page](https://github.com/jerrylum/topmost2/releases) to download the latest version.  
-This tool requires .Net Framework 4.7.2 (or above). Support Windows 7 SP1 or later.  
+The original .NET Framework release is available from [Jerrylum/topmost2 releases](https://github.com/Jerrylum/topmost2/releases).
+This fork is intended to be built from source with .NET 10 and published as a self-contained Windows executable.
 
 <br>
 
+### License
+
+TopMost2 is licensed under the [MIT License](LICENSE). This fork keeps the original license and attribution.
+
 ### Special Thanks
 
-Thanks you [SamNg](https://github.com/ngkachunhlp) and [COMMANDER.WONG](https://github.com/COMMANDERWONG) for their suggestions and  software testing.
+Thanks to [Jerrylum](https://github.com/Jerrylum) for the original TopMost2 project.
+Thanks to [SamNg](https://github.com/ngkachunhlp) and [COMMANDER.WONG](https://github.com/COMMANDERWONG) for their suggestions and software testing.

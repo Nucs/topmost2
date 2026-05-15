@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
@@ -18,6 +19,7 @@ using System.Runtime.InteropServices;
 // 組件中的類型。若必須從 COM 存取此組件中的類型，
 // 的類型，請在該類型上將 ComVisible 屬性設定為 true。
 [assembly: ComVisible(false)]
+[assembly: SupportedOSPlatform("windows")]
 
 // 下列 GUID 為專案公開 (Expose) 至 COM 時所要使用的 typelib ID
 [assembly: Guid("edb3ffee-22dc-43da-a833-d4b712681bd0")]

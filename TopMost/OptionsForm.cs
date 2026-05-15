@@ -52,10 +52,37 @@ namespace TopMost2
 
         public void UpdateNotifyIcon()
         {
+            if (IsDisposed)
+                return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(UpdateNotifyIcon));
+                return;
+            }
+
             Icon NewIcon = API.IsTopMost(API.cureentHwnd) ? GreenIcon : RedIcon;
 
             if (NotifyIcon1.Icon != NewIcon)
                 NotifyIcon1.Icon = NewIcon;
+        }
+
+        public void ShowOptions()
+        {
+            if (IsDisposed)
+                return;
+
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(ShowOptions));
+                return;
+            }
+
+            WindowState = FormWindowState.Normal;
+            TopMost = true;
+            Show();
+            BringToFront();
+            Activate();
         }
 
         public void StartRecord()
@@ -131,7 +158,7 @@ namespace TopMost2
 
         private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Show();
+            ShowOptions();
         }
 
         private void SetShortcutBtn_Click(object sender, EventArgs e)
@@ -246,6 +273,8 @@ namespace TopMost2
 
         private void OptionsForm_Deactivate(object sender, EventArgs e)
         {
+            TopMost = false;
+
             if (ListenStatus == ListeningStatus.RECORDING) // end recording
             {
                 StopRecord();

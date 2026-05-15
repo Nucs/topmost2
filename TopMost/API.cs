@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -57,6 +58,8 @@ namespace TopMost2
                                   uint uFlags);
         [DllImport("user32.dll", SetLastError = true)]
         static extern UInt32 GetWindowLong(IntPtr hWnd, IntPtr nIndex);
+        [DllImport("winmm.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern bool PlaySound(string pszSound, IntPtr hmod, uint fdwSound);
 
         static readonly IntPtr GWL_EXSTYLE = new IntPtr(-20);
         static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
@@ -66,6 +69,8 @@ namespace TopMost2
         static readonly UInt32 SWP_NOSIZE = 0x0001;
         static readonly UInt32 SWP_NOMOVE = 0x0002;
         static readonly UInt32 SWP_SHOWWINDOW = 0x0040;
+        static readonly UInt32 SND_ASYNC = 0x0001;
+        static readonly UInt32 SND_FILENAME = 0x00020000;
         static readonly byte HighBit = 0x80;
 
         //public static ArrayList TopmostWindowsLog = new ArrayList();
@@ -136,7 +141,7 @@ namespace TopMost2
             {
                 if ((hWnd = proc.MainWindowHandle) != IntPtr.Zero)
                 {
-                    API.SetTopMost(hWnd, false, false);
+                    API.SetTopMost(hWnd, false, false, false);
                 }
             }
         }
@@ -155,9 +160,10 @@ namespace TopMost2
             SetTopMost(hwnd, !now_topmost);
         }
 
-        public static void SetTopMost(IntPtr hwnd, bool topmost, bool tryAdmin = true)
+        public static void SetTopMost(IntPtr hwnd, bool topmost, bool tryAdmin = true, bool playSound = true)
         {
             Console.WriteLine(hwnd.ToString("X") + " set to " + topmost + "; Current = " + GetForegroundWindow().ToString("X"));
+            bool wasTopMost = IsTopMost(hwnd);
 
             //if (topmost)
             //    if (TopmostWindowsLog.IndexOf(hwnd) == -1)
@@ -198,8 +204,27 @@ namespace TopMost2
                 }
             }
 
+            if (playSound && wasTopMost != topmost && IsTopMost(hwnd) == topmost)
+                PlayTopMostChangedSound(topmost);
+
             if (Program.OptionsForm != null)
                 Program.OptionsForm.UpdateNotifyIcon();
+        }
+
+        private static void PlayTopMostChangedSound(bool topmost)
+        {
+            string soundFile = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                "Media",
+                topmost ? "Speech On.wav" : "Speech Sleep.wav");
+
+            if (File.Exists(soundFile) && PlaySound(soundFile, IntPtr.Zero, SND_FILENAME | SND_ASYNC))
+                return;
+
+            if (topmost)
+                SystemSounds.Asterisk.Play();
+            else
+                SystemSounds.Exclamation.Play();
         }
 
         public static string GetKeyCombinationBreif(HashSet<Keys> keyset)
@@ -269,7 +294,7 @@ namespace TopMost2
 
         public static string GetExeLocation()
         {
-            return System.Reflection.Assembly.GetEntryAssembly().Location;
+            return Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule.FileName;
         }
 
         public static string GetValueFromRegistry(string subkey, string key)
